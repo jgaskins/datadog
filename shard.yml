@@ -1,0 +1,16 @@
+name: datadog
+version: 0.1.0
+
+authors:
+  - Jamie Gaskins <jgaskins@hey.com>
+
+dependencies:
+  msgpack:
+    github: crystal-community/msgpack-crystal
+  statsd:
+    github: miketheman/statsd.cr
+    branch: master
+
+crystal: 0.35.1
+
+license: MIT
