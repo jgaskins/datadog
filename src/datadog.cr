@@ -195,6 +195,7 @@ module Datadog
         yield span
       rescue ex
         span.error += 1
+        raise ex
       ensure
         span.duration = (Time.utc - start).total_nanoseconds.to_i32
         Fiber.current.current_datadog_span = previous_span
