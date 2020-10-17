@@ -196,6 +196,7 @@ module Datadog
       active_trace << span
       previous_span = active_span
       Fiber.current.current_datadog_span = span
+      start_monotonic = Time.monotonic
       
       begin
         yield span
@@ -203,7 +204,7 @@ module Datadog
         span.error += 1
         raise ex
       ensure
-        span.duration = (Time.utc - start).total_nanoseconds.to_i32
+        span.duration = (Time.monotonic - start_monotonic).total_nanoseconds.to_i32
         Fiber.current.current_datadog_span = previous_span
         if previous_span.nil?
           Fiber.current.current_datadog_trace = nil
