@@ -7,6 +7,12 @@ class Fiber
   property current_datadog_trace : Datadog::Trace?
 end
 
+class HTTP::Client
+  def exec_without_instrumentation(request : HTTP::Request)
+    exec_internal request
+  end
+end
+
 module Datadog
   alias Trace = Array(Span)
   alias TraceSet = Array(Trace)
@@ -210,18 +216,21 @@ module Datadog
       @lock.synchronize do
         return if @current_traces.empty?
 
-        HTTP::Client.post(
-          url: URI.parse("#{CONFIG.apm_base_url}/v0.4/traces"),
-          headers: HTTP::Headers {
-            "Content-Type" => "application/msgpack",
-            "Datadog-Meta-Lang" => "crystal",
-            "Datadog-Meta-Lang-Version" => Crystal::VERSION,
-            "Datadog-Meta-Tracer-Version" => VERSION,
-            "Host" => "#{CONFIG.agent_host}:#{CONFIG.trace_agent_port}",
-            "User-Agent" => "Crystal Datadog shard (https://github.com/jgaskins/datadog)",
-            "X-Datadog-Trace-Count" => @current_traces.size.to_s,
-          },
-          body: @current_traces.to_msgpack,
+        HTTP::Client.new(CONFIG.apm_base_url).exec_without_instrumentation(
+          HTTP::Request.new(
+            method: "POST",
+            resource: "/v0.4/traces",
+            headers: HTTP::Headers {
+              "Content-Type" => "application/msgpack",
+              "Datadog-Meta-Lang" => "crystal",
+              "Datadog-Meta-Lang-Version" => Crystal::VERSION,
+              "Datadog-Meta-Tracer-Version" => VERSION,
+              "Host" => "#{CONFIG.agent_host}:#{CONFIG.trace_agent_port}",
+              "User-Agent" => "Crystal Datadog shard (https://github.com/jgaskins/datadog)",
+              "X-Datadog-Trace-Count" => @current_traces.size.to_s,
+            },
+            body: @current_traces.to_msgpack,
+          )
         )
         @current_traces.clear
       end
