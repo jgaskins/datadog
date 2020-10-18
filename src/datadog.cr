@@ -121,11 +121,6 @@ module Datadog
 
   # :nodoc:
   class Service
-    enum Type
-      HTTP
-      DB
-    end
-
     getter name : String
     getter type : String
 
