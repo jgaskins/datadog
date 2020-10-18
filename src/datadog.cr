@@ -76,7 +76,9 @@ module Datadog
 
     # Declare a service name with a given type, the first will become the default service when reporting spans.
     def service(name : String, type = "http")
-      @services[name] = Service.new(name: name, type: type)
+      service = Service.new(name: name, type: type)
+      @service ||= name
+      @services[name] = service
     end
 
     # :nodoc:
