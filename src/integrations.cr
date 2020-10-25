@@ -2,7 +2,7 @@ require "./datadog"
 
 module Datadog
   def self.integration(key)
-    CONFIG.@integrations[key]
+    CONFIG.@integrations.fetch(key, Configuration::NO_INTEGRATION)
   end
 
   module Integrations
@@ -26,8 +26,10 @@ module Datadog
   end
 
   class Configuration
+    alias IntegrationMap = Hash(Array(String), Integrations::Integration)
+
     NO_INTEGRATION = Integrations::NoIntegration.new
-    @integrations : Hash(Array(String), Integrations::Integration) = Hash(Array(String), Integrations::Integration).new(default_value: NO_INTEGRATION)
+    @integrations : IntegrationMap = IntegrationMap.new(default_value: NO_INTEGRATION)
 
     def use(integration)
       integration.register @integrations

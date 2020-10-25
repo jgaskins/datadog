@@ -39,7 +39,7 @@ module DB::QueryMethods
       db = context.connection.@conninfo.database
     end
 
-    Datadog.integration([host, db]).as(Datadog::Integrations::DB).trace "db.query", resource: query do |span|
+    Datadog.integration([host, db]).trace "db.query", resource: query do |span|
       previous_def(query, *args_, args: args)
     end
   end
@@ -54,7 +54,7 @@ module DB::QueryMethods
       db = context.connection.@conninfo.database
     end
 
-    Datadog.integration([host, db]).as(Datadog::Integrations::DB).trace "db.query", resource: query do |span|
+    Datadog.integration([host, db]).trace "db.query", resource: query do |span|
       previous_def(query, *args_, args: args)
     end
   end
@@ -79,7 +79,7 @@ module DB::Serializable
   macro finished
     {% for includer in @type.includers %}
       def {{includer}}.new(rs : ::DB::ResultSet) : self
-        Datadog.tracer.trace "db.serializable.initialize", type: "db", resource: name do |span|
+        Datadog.integration(["db.serializable.initialize"]).trace "db.serializable.initialize", resource: name do |span|
           previous_def
         end
       end
