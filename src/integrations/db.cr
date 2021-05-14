@@ -74,15 +74,3 @@ module DB::QueryMethods
     end
   end
 end
-
-module DB::Serializable
-  macro finished
-    {% for includer in @type.includers %}
-      def {{includer}}.new(rs : ::DB::ResultSet) : self
-        Datadog.integration(["db.serializable.initialize"]).trace "db.serializable.initialize", resource: name do |span|
-          previous_def
-        end
-      end
-    {% end %}
-  end
-end
