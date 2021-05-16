@@ -183,7 +183,7 @@ module Datadog
         resource: resource,
         type: type,
         start: (start.to_unix_f * 1_000_000_000).to_i64,
-        duration: 0,
+        duration: 0i64,
         tags: CONFIG.tags.merge(tags),
         metrics: Span::Metadata.new,
         allocations: 0i64,
