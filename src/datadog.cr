@@ -223,6 +223,8 @@ module Datadog
       @lock.synchronize do
         return if @current_traces.empty?
 
+        Log.debug { "Reporting #{@current_traces.size} traces to Datadog" }
+
         HTTP::Client.new(CONFIG.apm_base_url).exec_without_instrumentation(
           HTTP::Request.new(
             method: "POST",
