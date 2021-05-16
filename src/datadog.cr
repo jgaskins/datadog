@@ -258,7 +258,7 @@ module Datadog
     getter parent_id : Int64
     getter name : String
     getter service : String
-    getter resource : String
+    property resource : String
     getter type : String
     getter start : Int64
     property duration : Int32
