@@ -54,6 +54,8 @@ module Datadog
   # end
   # ```
   class Configuration
+    property? tracing_enabled : Bool = ENV["DD_TRACING_ENABLED"]? == "true"
+
     # The agent host is the physical or logical IP address where your Datadog agent is running, defaults to `localhost`
     getter agent_host : String = resolve_ip(ENV.fetch("DD_AGENT_HOST", "localhost"))
     def agent_host=(host)
@@ -188,6 +190,11 @@ module Datadog
       )
       if parent_id == 0
         span.metrics["system.pid"] = Process.pid
+      end
+
+      # If tracing is disabled, we yield a span that we then just throw away
+      unless CONFIG.tracing_enabled?
+        return yield span
       end
 
       active_trace << span
