@@ -20,6 +20,7 @@ module Datadog
   CONFIG = Configuration.new
   DEFAULT_TRACER = DefaultTracer.new
   VERSION = "0.1.0"
+  Log = ::Log.for(self)
 
   # Yields the `Datadog::Configuration` in use
   def self.configure
@@ -203,6 +204,7 @@ module Datadog
       start_monotonic = Time.monotonic
       
       begin
+        Log.debug { span.inspect }
         yield span
       rescue ex
         span.error += 1

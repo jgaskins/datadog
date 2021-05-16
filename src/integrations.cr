@@ -2,7 +2,10 @@ require "./datadog"
 
 module Datadog
   def self.integration(key)
-    CONFIG.@integrations.fetch(key, Configuration::NO_INTEGRATION)
+    CONFIG.@integrations.fetch(key) do
+      Log.debug { "Integration loaded but not used: #{key.inspect}" }
+      Configuration::NO_INTEGRATION
+    end
   end
 
   module Integrations
