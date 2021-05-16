@@ -9,7 +9,7 @@ dependencies:
     github: crystal-community/msgpack-crystal
   statsd:
     github: miketheman/statsd.cr
-    branch: master
+    branch: main
 
 crystal: ">= 0.35.1, < 2.0.0"
 
