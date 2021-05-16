@@ -37,6 +37,9 @@ module DB::QueryMethods
     in DB::Connection
       host = context.connection.@conninfo.host
       db = context.connection.@conninfo.database
+    in DB::SessionMethods::UnpreparedQuery
+      host = context.@session.context.uri.host
+      db = context.@session.context.uri.path[1..-1]
     end
 
     Datadog.integration([host, db]).trace "db.query", resource: query do |span|
@@ -52,6 +55,9 @@ module DB::QueryMethods
     in DB::Connection
       host = context.connection.@conninfo.host
       db = context.connection.@conninfo.database
+    in DB::SessionMethods::UnpreparedQuery
+      host = context.@session.context.uri.host
+      db = context.@session.context.uri.path[1..-1]
     end
 
     Datadog.integration([host, db]).trace "db.query", resource: query do |span|
@@ -67,6 +73,9 @@ module DB::QueryMethods
     in DB::Connection
       host = context.connection.@conninfo.host
       db = context.connection.@conninfo.database
+    in DB::SessionMethods::UnpreparedQuery
+      host = context.@session.context.uri.host
+      db = context.@session.context.uri.path[1..-1]
     end
 
     Datadog.integration([host, db]).trace "db.query", resource: query do |span|
