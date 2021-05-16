@@ -210,7 +210,7 @@ module Datadog
         span.error += 1
         raise ex
       ensure
-        span.duration = (Time.monotonic - start_monotonic).total_nanoseconds.to_i32
+        span.duration = (Time.monotonic - start_monotonic).total_nanoseconds.to_i64
         Fiber.current.current_datadog_span = previous_span
         if previous_span.nil?
           Fiber.current.current_datadog_trace = nil
@@ -263,7 +263,7 @@ module Datadog
     property resource : String
     getter type : String
     getter start : Int64
-    property duration : Int32
+    property duration : Int64
     @[MessagePack::Field(key: "meta")]
     getter tags : Metadata
     getter metrics : Metadata
