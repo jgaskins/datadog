@@ -35,7 +35,13 @@ module Redis
     include DatadogIntegration
 
     def run(command, retries = 5)
-      datadog_integration.trace "connection.query", resource: command.join(' ') do |span|
+      if command.first == "auth"
+        resource = "auth [REDACTED]"
+      else
+        resource = command.join(' ')
+      end
+
+      datadog_integration.trace "connection.query", resource: resource do |span|
         previous_def
       end
     end
@@ -55,7 +61,12 @@ module Redis
     @commands = ""
 
     def run(command)
-      @commands += command.join(", ")
+      if command.first == "auth"
+        @commands += "auth [REDACTED]"
+      else
+        @commands += command.join(", ")
+      end
+
       previous_def
     end
 
