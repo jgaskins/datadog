@@ -231,13 +231,13 @@ module Datadog
       start_monotonic = Time.monotonic
       
       begin
-        Log.debug { span.inspect }
         yield span
       rescue ex
         span.error += 1
         raise ex
       ensure
-        span.duration = (Time.monotonic - start_monotonic).total_nanoseconds.to_i64
+        duration = (Time.monotonic - start_monotonic).total_nanoseconds.to_i64
+        span.duration = duration
         Fiber.current.current_datadog_span = previous_span
         if previous_span.nil?
           Fiber.current.current_datadog_trace = nil
@@ -252,7 +252,7 @@ module Datadog
 
         Log.debug { "Reporting #{@current_traces.size} traces to Datadog" }
 
-        HTTP::Client.new(CONFIG.apm_base_url).exec_without_instrumentation(
+        response = HTTP::Client.new(CONFIG.apm_base_url).exec_without_instrumentation(
           HTTP::Request.new(
             method: "POST",
             resource: "/v0.4/traces",
@@ -268,7 +268,12 @@ module Datadog
             body: @current_traces.to_msgpack,
           )
         )
-        @current_traces.clear
+
+        if response.success?
+          @current_traces.clear
+        else
+          Log.warn { "Reporting Datadog traces unsuccessful: #{response.status_code} #{response.status} - #{response.body}" }
+        end
       end
     end
 
