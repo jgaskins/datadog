@@ -17,6 +17,32 @@ module Datadog
   alias Trace = Array(Span)
   alias TraceSet = Array(Trace)
 
+  # A span is a unit of measurable work for Datadog.
+  class Span
+    include MessagePack::Serializable
+
+    alias Metadata = Hash(String, String)
+
+    getter trace_id : Int64
+    @[MessagePack::Field(key: "span_id")]
+    getter id : Int64
+    getter parent_id : Int64
+    getter name : String
+    getter service : String
+    property resource : String
+    getter type : String
+    getter start : Int64
+    property duration : Int64
+    @[MessagePack::Field(key: "meta")]
+    getter tags : Metadata
+    getter metrics : Metadata
+    getter allocations : Int64
+    property error : Int32
+
+    def initialize(@trace_id, @id, @parent_id, @name, @service, @resource, @type, @start, @duration, @tags, @metrics, @allocations, @error)
+    end
+  end
+
   CONFIG = Configuration.new
   DEFAULT_TRACER = DefaultTracer.new
   VERSION = "0.1.0"
@@ -247,32 +273,6 @@ module Datadog
 
     def handle_error(ex)
       # ...
-    end
-  end
-
-  # A span is a unit of measurable work for Datadog.
-  class Span
-    include MessagePack::Serializable
-
-    alias Metadata = Hash(String, String)
-
-    getter trace_id : Int64
-    @[MessagePack::Field(key: "span_id")]
-    getter id : Int64
-    getter parent_id : Int64
-    getter name : String
-    getter service : String
-    property resource : String
-    getter type : String
-    getter start : Int64
-    property duration : Int64
-    @[MessagePack::Field(key: "meta")]
-    getter tags : Metadata
-    getter metrics : Metadata
-    getter allocations : Int64
-    property error : Int32
-
-    def initialize(@trace_id, @id, @parent_id, @name, @service, @resource, @type, @start, @duration, @tags, @metrics, @allocations, @error)
     end
   end
 end
