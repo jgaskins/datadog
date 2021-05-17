@@ -25,7 +25,7 @@ module Datadog
 
     getter trace_id : UInt64
     @[MessagePack::Field(key: "span_id")]
-    getter id : Int64
+    getter id : UInt64
     getter parent_id : UInt64
     getter name : String
     getter service : String
@@ -201,7 +201,7 @@ module Datadog
       end
 
       span = Span.new(
-        trace_id: current_trace_id || Random::Secure.rand(Int64).abs,
+        trace_id: current_trace_id || Random::Secure.rand(UInt64).abs,
         id: span_id,
         parent_id: parent_id,
         name: name,
