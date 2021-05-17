@@ -217,7 +217,7 @@ module Datadog
         error: 0,
       )
       if parent_id == 0
-        span.metrics["system.pid"] = Process.pid
+        span.metrics["system.pid"] = Process.pid.to_f64
       end
 
       # If tracing is disabled, we yield a span that we then just throw away
