@@ -22,6 +22,7 @@ module Datadog
     include MessagePack::Serializable
 
     alias Metadata = Hash(String, String)
+    alias Metrics = Hash(String, String | Float64)
 
     getter trace_id : UInt64
     @[MessagePack::Field(key: "span_id")]
@@ -35,7 +36,7 @@ module Datadog
     property duration : Int64
     @[MessagePack::Field(key: "meta")]
     getter tags : Metadata
-    getter metrics : Metadata
+    getter metrics : Metrics
     getter allocations : Int64
     property error : Int32
 
@@ -216,7 +217,7 @@ module Datadog
         error: 0,
       )
       if parent_id == 0
-        span.metrics["system.pid"] = Process.pid.to_s
+        span.metrics["system.pid"] = Process.pid
       end
 
       # If tracing is disabled, we yield a span that we then just throw away
