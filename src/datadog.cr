@@ -212,7 +212,7 @@ module Datadog
         start: (start.to_unix_f * 1_000_000_000).to_i64,
         duration: 0i64,
         tags: CONFIG.tags.merge(tags),
-        metrics: Span::Metadata.new,
+        metrics: Span::Metrics.new,
         allocations: 0i64,
         error: 0,
       )
