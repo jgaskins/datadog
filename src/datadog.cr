@@ -205,8 +205,8 @@ module Datadog
         id: span_id,
         parent_id: parent_id,
         name: name,
-        service: service_name,
-        resource: resource,
+        service: service_name[0...100], # Service name must be <= 100 characters
+        resource: resource[0...5000], # Resource must be <= 5000 characters
         type: type,
         start: (start.to_unix_f * 1_000_000_000).to_i64,
         duration: 0i64,
