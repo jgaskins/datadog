@@ -100,7 +100,7 @@ module Datadog
 
     # Set tags you want to set globally on your spans and metrics.
     def tags=(tags : Hash)
-      @tags = tags.transform_values(&.as(MessagePack::Type))
+      @tags = tags.transform_values(&.as(String))
     end
 
     # Declare a service name with a given type, the first will become the default service when reporting spans.
@@ -216,7 +216,7 @@ module Datadog
         error: 0,
       )
       if parent_id == 0
-        span.metrics["system.pid"] = Process.pid
+        span.metrics["system.pid"] = Process.pid.to_s
       end
 
       # If tracing is disabled, we yield a span that we then just throw away
