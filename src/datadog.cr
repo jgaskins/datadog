@@ -254,7 +254,7 @@ module Datadog
   class Span
     include MessagePack::Serializable
 
-    alias Metadata = Hash(String, MessagePack::Type)
+    alias Metadata = Hash(String, String)
 
     getter trace_id : Int64
     @[MessagePack::Field(key: "span_id")]
