@@ -140,7 +140,7 @@ module Datadog
   class DefaultTracer
     include Tracer
 
-    @current_traces = Array(Array(Span)).new
+    @current_traces = TraceSet.new
     @lock = Mutex.new # Don't want to lose spans while we report them
 
     def active_trace
