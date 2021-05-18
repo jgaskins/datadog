@@ -53,7 +53,7 @@ module Redis
   end
 
   class Pipeline
-    @commands = []
+    @commands = [] of String
 
     def run(command)
       @commands << command.first
