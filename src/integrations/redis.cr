@@ -35,13 +35,7 @@ module Redis
     include DatadogIntegration
 
     def run(command, retries = 5)
-      if command.first == "auth"
-        resource = "auth [REDACTED]"
-      else
-        resource = command.join(' ')
-      end
-
-      datadog_integration.trace "connection.query", resource: resource do |span|
+      datadog_integration.trace "query", resource: command.first do |span|
         previous_def
       end
     end
@@ -52,28 +46,27 @@ module Redis
       end
     end
 
+    @datadog_integration : Datadog::Integrations::Integration?
     private def datadog_integration
-      Datadog.integration([@uri.to_s])
+      @datadog_integration ||= Datadog.integration([@uri.to_s])
     end
   end
 
   class Pipeline
-    @commands = ""
+    @commands = []
 
     def run(command)
-      if command.first == "auth"
-        @commands += "auth [REDACTED]"
-      else
-        @commands += command.join(", ")
-      end
+      @commands << command.first
 
       previous_def
     end
 
     def commit
       result = previous_def
+
+      # Set the resource to the list of commands run inside the pipeline
       if span = Datadog.tracer.active_span
-        span.resource = @commands
+        span.resource = @commands.join(", ")
       end
 
       result
