@@ -83,3 +83,24 @@ module DB::QueryMethods
     end
   end
 end
+
+class DB::ResultSet
+  def each
+    uri = statement.connection.context.uri
+    host = uri.host
+    db = uri.path[1..-1]
+
+    Datadog.integration([host, db]).trace "result_set.each", resource: statement.command do |span|
+      result_count = 0
+      begin
+        previous_def do
+          result_count += 1
+          yield
+        end
+      ensure
+        span.tags["row_count"] = result_count.to_s
+        span.tags["column_count"] = column_count.to_s
+      end
+    end
+  end
+end
