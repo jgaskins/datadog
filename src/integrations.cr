@@ -17,7 +17,7 @@ module Datadog
     class NoIntegration
       include Integration
 
-      EMPTY_SPAN = Span.new(0u64, 0u64, 0u64, "", "", "", "", 0i64, 0i64, Span::Metadata.new, Span::Metrics.new, 0i64, 0)
+      EMPTY_SPAN = Span.new(0i64, 0i64, 0i64, "", "", "", "", 0i64, 0i64, Span::Metadata.new, Span::Metrics.new, 0i64, 0)
 
       def register(integrations)
       end
