@@ -188,7 +188,7 @@ module Datadog
       name : String,
       resource : String,
       current_span = active_span,
-      parent_id = current_span.try(&.id) || 0u64,
+      parent_id = current_span.try(&.id) || 0i64,
       trace_id = current_span.try(&.trace_id) || Random::Secure.rand(Int64).abs,
       span_id = Random::Secure.rand(Int64).abs,
       service = CONFIG.default_service,
