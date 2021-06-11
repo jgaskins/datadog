@@ -24,10 +24,10 @@ module Datadog
     alias Metadata = Hash(String, String)
     alias Metrics = Hash(String, String | Float64)
 
-    getter trace_id : UInt64
+    getter trace_id : Int64
     @[MessagePack::Field(key: "span_id")]
-    getter id : UInt64
-    getter parent_id : UInt64
+    getter id : Int64
+    getter parent_id : Int64
     getter name : String
     getter service : String
     property resource : String
@@ -189,8 +189,8 @@ module Datadog
       resource : String,
       current_span = active_span,
       parent_id = current_span.try(&.id) || 0u64,
-      trace_id = current_span.try(&.trace_id) || Random::Secure.rand(UInt64).abs,
-      span_id = Random::Secure.rand(UInt64).abs,
+      trace_id = current_span.try(&.trace_id) || Random::Secure.rand(Int64).abs,
+      span_id = Random::Secure.rand(Int64).abs,
       service = CONFIG.default_service,
       service_name = service.name,
       start = Time.utc,
@@ -202,7 +202,7 @@ module Datadog
       end
 
       span = Span.new(
-        trace_id: current_trace_id || Random::Secure.rand(UInt64).abs,
+        trace_id: current_trace_id || Random::Secure.rand(Int64).abs,
         id: span_id,
         parent_id: parent_id,
         name: name,
