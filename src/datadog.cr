@@ -171,13 +171,7 @@ module Datadog
     @lock = Mutex.new # Don't want to lose spans while we report them
 
     def active_trace
-      if trace = Fiber.current.current_datadog_trace
-        trace
-      else
-        trace = Fiber.current.current_datadog_trace = Trace.new
-        @lock.synchronize { @current_traces << trace }
-        trace
-      end
+      Fiber.current.current_datadog_trace
     end
 
     def active_span
@@ -225,6 +219,10 @@ module Datadog
         return yield span
       end
 
+      unless active_trace = Fiber.current.current_datadog_trace
+        top_level_span = true
+        active_trace = Trace.new
+      end
       active_trace << span
       previous_span = active_span
       Fiber.current.current_datadog_span = span
@@ -241,6 +239,9 @@ module Datadog
         Fiber.current.current_datadog_span = previous_span
         if previous_span.nil?
           Fiber.current.current_datadog_trace = nil
+        end
+        if top_level_span
+          @lock.synchronize { @current_traces << active_trace }
         end
       end
     end
