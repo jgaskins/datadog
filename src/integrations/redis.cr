@@ -36,6 +36,17 @@ module Redis
 
     def run(command, retries = 5)
       datadog_integration.trace "query", resource: command.first do |span|
+        span["query"] = String.build do |str|
+          command.each do |part|
+            # TODO: Should this number be configurable?
+            if str.bytesize <= 2000
+              if str.bytesize > 0
+                str << ' '
+              end
+              part.dump_unquoted str
+            end
+          end
+        end
         previous_def
       end
     end
