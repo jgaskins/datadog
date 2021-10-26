@@ -1,6 +1,7 @@
 require "msgpack"
 require "http"
 require "statsd"
+require "log"
 
 class Fiber
   property current_datadog_span : Datadog::Span?
@@ -41,6 +42,14 @@ module Datadog
     property error : Int32
 
     def initialize(@trace_id, @id, @parent_id, @name, @service, @resource, @type, @start, @duration, @tags, @metrics, @allocations, @error)
+    end
+
+    def []=(key, value : ::Log::Metadata::Value)
+      tags[key.to_s] = value.raw.to_s
+    end
+
+    def []=(key, value)
+      tags[key.to_s] = value
     end
   end
 
@@ -241,6 +250,11 @@ module Datadog
           Fiber.current.current_datadog_trace = nil
         end
         if top_level_span
+          active_trace.each do |span|
+            Log.context.metadata.each do |key, value|
+              span[key] = value
+            end
+          end
           @lock.synchronize { @current_traces << active_trace }
         end
       end
