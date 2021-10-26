@@ -221,7 +221,7 @@ module Datadog
 
       unless active_trace = Fiber.current.current_datadog_trace
         top_level_span = true
-        active_trace = Trace.new
+        Fiber.current.current_datadog_trace = active_trace = Trace.new
       end
       active_trace << span
       previous_span = active_span
