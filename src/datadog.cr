@@ -149,6 +149,8 @@ module Datadog
 
     # :nodoc:
     def self.resolve_ip(host)
+      return host if host =~ /(\d+\.){3}\d+/ # If we received an IP address, just return it
+
       # It doesn't seem to work well with IPv6, so let's stick with IPv4 addresses
       Socket::Addrinfo
         .udp(host, "")
