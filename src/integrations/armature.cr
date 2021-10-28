@@ -73,9 +73,8 @@ module Armature::Route
       return if handled? # Don't add this to the trace if we aren't matching
 
       datadog_integration.trace "match", resource: path.to_s do |span|
-          span.tags["value"] = value
-          yield value
-        end
+        span.tags["value"] = value
+        yield value
       end
     end
   end
