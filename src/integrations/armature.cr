@@ -27,6 +27,12 @@ module Datadog::Integrations
 end
 
 module Armature::Route
+  extend self
+end
+
+module Datadog::Armature::Route
+  include ::Armature::Route
+
   module DatadogIntegration
     def datadog_integration
       Datadog.integration([Datadog::Integrations::Armature.service_name])
@@ -36,16 +42,17 @@ module Armature::Route
   include DatadogIntegration
 
   def route(context)
-    tags = Datadog::Span::Metadata {
-      "class" => self.class.name,
-    }
-    datadog_integration.trace "route", resource: query, tags: tags do |span|
-      previous_def
+    datadog_integration.trace "route", resource: self.class.name do |span|
+      ::Armature::Route.route context do |r, response, session|
+        span["path"] = r.path
+
+        yield Request.new(r), response, session
+      end
     end
   end
 
   macro render(template, to io = response)
-    Datadog.integration([Datadog::Integrations::Armature.service_name]).trace "render", resource: "{{template.id}}" do
+    ::Datadog.integration([::Datadog::Integrations::Armature.service_name]).trace "render", resource: "{{template.id}}" do
       ECR.embed "views/{{template.id}}.ecr", {{io}}
     end
   end
@@ -53,27 +60,36 @@ module Armature::Route
   class Request
     include DatadogIntegration
 
+    def initialize(@request : ::Armature::Route::Request)
+    end
+
+    forward_missing_to @request
+
     def root
       return if handled? # Don't add this to the trace if we aren't matching
 
-      datadog_integration.trace "match", resource: "/" do
-        previous_def
+      @request.root do
+        datadog_integration.trace "match", resource: "/" do
+          yield
+        end
       end
     end
 
     def on(path : String)
       return if handled? # Don't add this to the trace if we aren't matching
 
-      datadog_integration.trace "match", resource: path do
-        previous_def
+      @request.on path do
+        datadog_integration.trace "match", resource: path do
+          yield
+        end
       end
     end
 
     def on(capture : Symbol)
       return if handled? # Don't add this to the trace if we aren't matching
 
-      datadog_integration.trace "match", resource: path.to_s do |span|
-        previous_def capture do |value|
+      @request.on capture do |value|
+        datadog_integration.trace "match", resource: path.to_s do |span|
           span.tags["value"] = value
           yield value
         end
