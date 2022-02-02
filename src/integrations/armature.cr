@@ -44,11 +44,11 @@ module Armature::Route
     end
   end
 
-  macro render(template, to io = response)
-    Datadog.integration([Datadog::Integrations::Armature.service_name]).trace "render", resource: "{{template.id}}" do
-      ECR.embed "views/{{template.id}}.ecr", {{io}}
-    end
-  end
+  # macro render(template, to io = response)
+  #   Datadog.integration([Datadog::Integrations::Armature.service_name]).trace "render", resource: "{{template.id}}" do
+  #     ::Armature::Template.embed "views/{{template.id}}.ecr", {{io}}
+  #   end
+  # end
 
   class Request
     include DatadogIntegration
