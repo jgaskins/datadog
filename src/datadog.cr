@@ -202,6 +202,37 @@ module Datadog
       type = service.type,
       tags = Span::Metadata.new,
     )
+      created = create_span(
+        name,
+        resource,
+        current_span,
+        parent_id,
+        trace_id,
+        span_id,
+        service,
+        service_name,
+        start,
+        type,
+        tags,
+      )
+      span = created[0]
+
+      begin
+        yield span
+
+        # If tracing is disabled, we yield a span that we then just throw away
+        if CONFIG.tracing_enabled?
+          return
+        end
+      rescue ex
+        span.error += 1
+        raise ex
+      ensure
+        finish_span(*created)
+      end
+    end
+
+    private def create_span(name, resource, current_span, parent_id, trace_id, span_id, service, service_name, start, type, tags)
       if current_span = active_span
         current_trace_id = current_span.trace_id
       end
@@ -225,11 +256,6 @@ module Datadog
         span.metrics["system.pid"] = Process.pid.to_f64
       end
 
-      # If tracing is disabled, we yield a span that we then just throw away
-      unless CONFIG.tracing_enabled?
-        return yield span
-      end
-
       unless active_trace = Fiber.current.current_datadog_trace
         top_level_span = true
         Fiber.current.current_datadog_trace = active_trace = Trace.new
@@ -238,27 +264,24 @@ module Datadog
       previous_span = active_span
       Fiber.current.current_datadog_span = span
       start_monotonic = Time.monotonic
-      
-      begin
-        yield span
-      rescue ex
-        span.error += 1
-        raise ex
-      ensure
-        duration = (Time.monotonic - start_monotonic).total_nanoseconds.to_i64
-        span.duration = duration
-        Fiber.current.current_datadog_span = previous_span
-        if previous_span.nil?
-          Fiber.current.current_datadog_trace = nil
-        end
-        if top_level_span
-          active_trace.each do |span|
-            Log.context.metadata.each do |key, value|
-              span[key] = value
-            end
+
+      {span, start_monotonic, previous_span, top_level_span, active_trace}
+    end
+
+    def finish_span(span, start_monotonic, previous_span, top_level_span, active_trace)
+      duration = (Time.monotonic - start_monotonic).total_nanoseconds.to_i64
+      span.duration = duration
+      Fiber.current.current_datadog_span = previous_span
+      if previous_span.nil?
+        Fiber.current.current_datadog_trace = nil
+      end
+      if top_level_span
+        active_trace.each do |span|
+          Log.context.metadata.each do |key, value|
+            span[key] = value
           end
-          @lock.synchronize { @current_traces << active_trace }
         end
+        @lock.synchronize { @current_traces << active_trace }
       end
     end
 
