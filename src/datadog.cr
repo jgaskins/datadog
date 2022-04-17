@@ -218,7 +218,7 @@ module Datadog
       span = created[0]
 
       # If tracing is disabled, we yield a span that we then just throw away
-      if CONFIG.tracing_enabled?
+      unless CONFIG.tracing_enabled?
         return yield span
       end
 
