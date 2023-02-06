@@ -8,7 +8,7 @@ This is a Crystal library providing an APM tracing client for [Datadog](https://
 
    ```yaml
    dependencies:
-     datadog_trace:
+     datadog:
        github: jgaskins/datadog
    ```
 
