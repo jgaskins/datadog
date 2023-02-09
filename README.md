@@ -84,7 +84,7 @@ Datadog.metrics.increment "my.metric.name", tags: %w[key1:value1 key2:value2]
 Datadog.metrics.increment "my.metric.name", tags: %w[key1:value1 key2:value2]
 
 # Set a counter
-Datadog.metrics.set "my.metric.name, 1
+Datadog.metrics.set "my.metric.name", 1
 
 # Report how long it takes to execute a block
 Datadog.metrics.time "my.metric.name" do
