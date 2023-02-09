@@ -71,6 +71,8 @@ end
 
 If most of your span names are the same with different resources, you can instrument it even more easily by setting a default `name`.
 
+Note: To enable the Datadog tracing, set this environment variable: `DD_TRACING_ENABLED="true"`.
+
 ### Report Datadog custom metrics
 
 Datadog custom metrics are handled via [Statsd](https://github.com/statsd/statsd). `Datadog.metrics` is currently implemented as a [`Statsd::Client`](https://github.com/miketheman/statsd.cr).
