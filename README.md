@@ -71,6 +71,8 @@ end
 
 If most of your span names are the same with different resources, you can instrument it even more easily by setting a default `name`.
 
+Note: To enable the Datadog tracing, set this environment variable: `DD_TRACING_ENABLED="true"`.
+
 ### Report Datadog custom metrics
 
 Datadog custom metrics are handled via [Statsd](https://github.com/statsd/statsd). `Datadog.metrics` is currently implemented as a [`Statsd::Client`](https://github.com/miketheman/statsd.cr).
@@ -84,7 +86,7 @@ Datadog.metrics.increment "my.metric.name", tags: %w[key1:value1 key2:value2]
 Datadog.metrics.increment "my.metric.name", tags: %w[key1:value1 key2:value2]
 
 # Set a counter
-Datadog.metrics.set "my.metric.name, 1
+Datadog.metrics.set "my.metric.name", 1
 
 # Report how long it takes to execute a block
 Datadog.metrics.time "my.metric.name" do
